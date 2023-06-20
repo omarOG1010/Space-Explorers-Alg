@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Project4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/antlr4-runtime-4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/org.abego.treelayout.core-1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/antlr4-annotations-4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/digraph-parser-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
