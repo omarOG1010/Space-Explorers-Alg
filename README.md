@@ -1,7 +1,5 @@
 # Space-Explorers-Alg
 
-Space Explorers
-
 
 The Game
 
