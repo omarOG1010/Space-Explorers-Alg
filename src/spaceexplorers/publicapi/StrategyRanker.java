@@ -7,11 +7,24 @@ import spaceexplorers.strategies.*;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+/**
+ * The StrategyRanker class is responsible for ranking different strategies based on their performance in simulated games.
+ */
 public class StrategyRanker {
+
+    /** The number of trials to run for each strategy matchup. */
     public static final int NUM_TRIALS = 10;
 
+    /**
+     * The main method runs the strategy ranking algorithm and prints out the results.
+     *
+     * @param args Command line arguments (not used).
+     * @throws IllegalAccessException    If an illegal access exception occurs during strategy instantiation.
+     * @throws InstantiationException    If an instantiation exception occurs during strategy instantiation.
+     * @throws FileNotFoundException     If a file not found exception occurs during strategy loading.
+     */
     public static void main(String[] args) throws IllegalAccessException, InstantiationException, FileNotFoundException {
-        // List of all strategies to compare
+        // Strategy providers for comparison
         List<IStrategyProvider> strategyProviders = new ArrayList<>();
         strategyProviders.add(new ClassStrategyProvider(NoOpStrategy.class));
         strategyProviders.add(new ClassStrategyProvider(RandomStrategy.class));
@@ -20,6 +33,7 @@ public class StrategyRanker {
         strategyProviders.add(new JarStrategyProvider("AI3Strategy"));
         strategyProviders.add(new ClassStrategyProvider(StudentStrategy.class));
 
+        // List of graphs to test strategies on
         List<String> graphs = new ArrayList<>();
         graphs.add("rings");
         graphs.add("k4");
@@ -27,6 +41,7 @@ public class StrategyRanker {
             graphs.add("graph_" + i);
         }
 
+        // Initialize win counts
         Map<IStrategyProvider, Integer> wins = new HashMap<>();
         Map<IStrategyProvider, Map<String, Integer>> winsPerMap = new HashMap<>();
         for (IStrategyProvider strategyProvider : strategyProviders) {
@@ -38,6 +53,7 @@ public class StrategyRanker {
             }
         }
 
+        // Run strategy matchups
         for (int i = 0; i < strategyProviders.size(); i++) {
             for (int j = i + 1; j < strategyProviders.size(); j++) {
                 if (i == j) {
@@ -75,30 +91,21 @@ public class StrategyRanker {
             }
         }
 
+        // Print rankings
         System.out.println("Rankings:");
         List<Map.Entry<IStrategyProvider, Integer>> winsPairs = new ArrayList<>(wins.entrySet());
-        winsPairs.sort(new Comparator<Map.Entry<IStrategyProvider, Integer>>() {
-            @Override
-            public int compare(Map.Entry<IStrategyProvider, Integer> e1, Map.Entry<IStrategyProvider, Integer> e2) {
-                return -1 * e1.getValue().compareTo(e2.getValue());
-            }
-        });
-
+        winsPairs.sort(Comparator.comparingInt(e -> -e.getValue()));
         for (Map.Entry<IStrategyProvider, Integer> entry : winsPairs) {
             System.out.println(String.format("Strategy: %s, Wins: %d", entry.getKey().newInstance().getName(), entry.getValue()));
         }
 
+        // Print wins per map
         System.out.println();
         System.out.println("Wins per Map");
         List<Map.Entry<IStrategyProvider, Map<String, Integer>>> winsPerMapPairs = new ArrayList<>(winsPerMap.entrySet());
         for (Map.Entry<IStrategyProvider, Map<String, Integer>> entry : winsPerMapPairs) {
             List<Map.Entry<String, Integer>> winsPerMapInnerPairs = new ArrayList<>(entry.getValue().entrySet());
-            winsPerMapInnerPairs.sort(new Comparator<Map.Entry<String, Integer>>() {
-                @Override
-                public int compare(Map.Entry<String, Integer> e1, Map.Entry<String, Integer> e2) {
-                    return -1 * e1.getValue().compareTo(e2.getValue());
-                }
-            });
+            winsPerMapInnerPairs.sort(Comparator.comparingInt(e -> -e.getValue()));
             System.out.println(String.format("Strategy: %s, Wins: %s", entry.getKey().newInstance().getName(), winsPerMapInnerPairs));
         }
     }
@@ -111,15 +118,27 @@ public class StrategyRanker {
     }
 
     /**
-     * Class providing instances of a strategy which can be referred to directly, e.g. {@code MyStrategy.class}
+     * Class providing instances of a strategy which can be referred to directly, e.g. {@code MyStrategy.class}.
      */
     private static class ClassStrategyProvider implements IStrategyProvider {
         private Class<? extends IStrategy> strategyClass;
 
+        /**
+         * Constructs a ClassStrategyProvider with the provided strategy class.
+         *
+         * @param strategyClass The class of the strategy.
+         */
         public ClassStrategyProvider(Class<? extends IStrategy> strategyClass) {
             this.strategyClass = strategyClass;
         }
 
+        /**
+         * Creates a new instance of the strategy class.
+         *
+         * @return An instance of the strategy.
+         * @throws IllegalAccessException    If an illegal access exception occurs.
+         * @throws InstantiationException    If an instantiation exception occurs.
+         */
         @Override
         public IStrategy newInstance() throws IllegalAccessException, InstantiationException {
             return strategyClass.newInstance();
@@ -127,15 +146,27 @@ public class StrategyRanker {
     }
 
     /**
-     * Class providing instances of a strategy which has been jarred up, e.g. {@code "AI1_obf"}
+     * Class providing instances of a strategy which has been jarred up, e.g. {@code "AI1_obf"}.
      */
     private static class JarStrategyProvider implements IStrategyProvider {
         private String jar;
 
+        /**
+         * Constructs a JarStrategyProvider with the provided jar name.
+         *
+         * @param jar The name of the jar file containing the strategy.
+         */
         public JarStrategyProvider(String jar) {
             this.jar = jar;
         }
 
+        /**
+         * Loads and creates a new instance of the strategy from the jar.
+         *
+         * @return An instance of the strategy.
+         * @throws IllegalAccessException    If an illegal access exception occurs.
+         * @throws InstantiationException    If an instantiation exception occurs.
+         */
         @Override
         public IStrategy newInstance() throws IllegalAccessException, InstantiationException {
             IStrategy instance = Assets.loadPlayer(jar);
